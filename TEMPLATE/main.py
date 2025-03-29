@@ -1,6 +1,6 @@
 DAY = -1
 FILE = "puzzle.txt"
-# FILE = "test.txt"
+FILE = "test.txt"
 
 
 def getInput():
