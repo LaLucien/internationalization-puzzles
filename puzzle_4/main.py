@@ -1,8 +1,11 @@
 import re
+from datetime import datetime
+from zoneinfo import ZoneInfo
+import calendar
 
 DAY = 4
 FILE = "puzzle.txt"
-FILE = "test.txt"
+# FILE = "test.txt"
 
 
 def getInput():
@@ -16,18 +19,30 @@ def getInput():
     ]
 
 
+def get_datetime(datetime_str: str) -> datetime:
+    """only useful to convert this string: "Departure: Europe/London                  Jan 12, 2020, 06:00" to a datime object"""
+    datetime_list_with_tz = re.findall(r"\S+", datetime_str)
+    timezone = ZoneInfo(datetime_list_with_tz[1])
+    datetime_list = datetime_list_with_tz[2:]
+    time_list = datetime_list[-1].split(":")
+    return datetime(
+        int(datetime_list[2].strip(",")),
+        list(calendar.month_abbr).index(datetime_list[0]),
+        int(datetime_list[1].strip(",")),
+        int(time_list[0]),
+        int(time_list[1]),
+        tzinfo=timezone,
+    )
+
+
 def solve1(input: list[tuple[str, str]]) -> int:
+    duration = 0
     for trip in input:
-        departure_str = trip[0]
-        arrivel_str = trip[1]
+        departure = get_datetime(trip[0])
+        arrival = get_datetime(trip[1])
+        duration += (arrival - departure).seconds // 60
 
-        dep_tz_match = max(
-            re.search(r"([A-Z,a-z,_]+/)+[A-Z,a-z,_]+", departure_str).regs
-        )
-        dep_tz = departure_str[dep_tz_match[0] : dep_tz_match[1]]
-        print(dep_tz)
-
-    return
+    return duration
 
 
 if __name__ == "__main__":
